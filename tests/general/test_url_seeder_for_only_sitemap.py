@@ -1,9 +1,11 @@
 import asyncio
+import pytest
 from crawl4ai import AsyncLogger, AsyncUrlSeeder, SeedingConfig
 from pathlib import Path
 import httpx
 
 
+@pytest.mark.asyncio
 async def test_sitemap_source_does_not_hit_commoncrawl():
     config = SeedingConfig(
         source="sitemap",
