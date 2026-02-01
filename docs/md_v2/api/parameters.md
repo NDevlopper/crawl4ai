@@ -174,6 +174,7 @@ If your page is a single-page app with repeated JS updates, set `js_only=True` i
 | **`screenshot`**                           | `bool` (False)      | Capture a screenshot (base64) in `result.screenshot`.                                                     |
 | **`screenshot_wait_for`**                  | `float or None`     | Extra wait time before the screenshot.                                                                    |
 | **`screenshot_height_threshold`**          | `int` (~20000)      | If the page is taller than this, alternate screenshot strategies are used.                                |
+| **`force_viewport_screenshot`**            | `bool` (False)      | If `True`, always captures a viewport-only screenshot regardless of page height. Faster and smaller than full-page screenshots. |
 | **`pdf`**                                  | `bool` (False)      | If `True`, returns a PDF in `result.pdf`.                                                                 |
 | **`capture_mhtml`**                        | `bool` (False)      | If `True`, captures an MHTML snapshot of the page in `result.mhtml`. MHTML includes all page resources (CSS, images, etc.) in a single file. |
 | **`image_description_min_word_threshold`** | `int` (~50)         | Minimum words for an image's alt text or description to be considered valid.                              |

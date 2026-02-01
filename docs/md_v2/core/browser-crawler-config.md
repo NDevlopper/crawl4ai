@@ -259,9 +259,10 @@ class CrawlerRunConfig:
    - A CSS or JS expression to wait for before extracting content.  
    - Common usage: `wait_for="css:.main-loaded"` or `wait_for="js:() => window.loaded === true"`.
 
-8.⠀**`screenshot`**, **`pdf`**, & **`capture_mhtml`**:  
-   - If `True`, captures a screenshot, PDF, or MHTML snapshot after the page is fully loaded.  
+8.⠀**`screenshot`**, **`pdf`**, & **`capture_mhtml`**:
+   - If `True`, captures a screenshot, PDF, or MHTML snapshot after the page is fully loaded.
    - The results go to `result.screenshot` (base64), `result.pdf` (bytes), or `result.mhtml` (string).
+   - Use `force_viewport_screenshot=True` to capture only the visible viewport instead of the full page. This is faster and produces smaller images when you don't need a full-page screenshot.
 
 9.⠀**Location Parameters**:  
    - **`locale`**: Browser's locale (e.g., `"en-US"`, `"fr-FR"`) for language preferences
