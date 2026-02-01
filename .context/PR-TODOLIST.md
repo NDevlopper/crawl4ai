@@ -1,6 +1,6 @@
 # PR Review Todolist
 
-> Last updated: 2026-02-01 | Total open PRs: 81
+> Last updated: 2026-02-01 | Total open PRs: 79
 
 ---
 
@@ -23,7 +23,7 @@
 | ~~#1364~~ | ~~nnxiong~~ | ~~Fix `<script>` tag removal losing adjacent text in `cleaned_html`.~~ | **merged** |
 | #1308 | cjh-GITHUB | Fix css_selector variable type error (assigned to list). | pending |
 | ~~#1296~~ | ~~vladmandic~~ | ~~Fix `VersionManager` ignoring `CRAWL4_AI_BASE_DIRECTORY` env var. 1-line fix.~~ | **merged** |
-| #1281 | garyluky | Fix proxy auth `ERR_INVALID_AUTH_CREDENTIALS`. Fixes #993, #974, #1109. | pending |
+| ~~#1281~~ | ~~garyluky~~ | ~~Fix proxy auth `ERR_INVALID_AUTH_CREDENTIALS`. Fixes #993, #974, #1109.~~ | **merged** |
 | #1234 | hellokayas | Fix TypeError when `keep_data_attributes=False` by ensuring list concat. | pending |
 | #1211 | zhangbo-tj | Fix: safely create new page if no page exists in persistent context. | pending |
 | #1207 | ninjapanzer | Fix streaming error handling. | pending |
@@ -32,8 +32,8 @@
 | ~~#1150~~ | ~~scris~~ | ~~Fix LLM extraction `response` variable not overridden causing `'str' has no attribute 'choices'`.~~ | **closed (already fixed)** |
 | #1133 | Daniel21b | Enforce auth when JWT is enabled. 1-line fix. | pending |
 | #1106 | ruoyuGao | Fix: Adapt to CrawlerMonitor constructor change. | pending |
-| #1081 | Joorrit | Fix deep crawl scorer logic was inverted — high-distance paths scored higher. | pending |
-| #1077 | RoyLeviLangware | Fix bs4 deprecation warning (`text` -> `string`). 1 line. | pending |
+| #1081 | Joorrit | Fix deep crawl scorer logic was inverted — high-distance paths scored higher. | **needs work (commented)** |
+| ~~#1077~~ | ~~RoyLeviLangware~~ | ~~Fix bs4 deprecation warning (`text` -> `string`). 1 line.~~ | **merged** |
 | #1073 | saipavanmeruga7797 | Fix local HTML file crawling broken when `capture_console_messages=False`. | pending |
 | #1065 | dzhao-gearset | Fix: Update deprecated Groq models to recommended replacements. | pending |
 | #1059 | wangs1024 | Fix wrong proxy config type in proxy demo example. | pending |
@@ -151,3 +151,5 @@
 | #1296 | vladmandic | fix: VersionManager ignoring CRAWL4_AI_BASE_DIRECTORY env var | 2026-02-01 |
 | #1364 | nnxiong | fix: script tag removal losing adjacent text in cleaned_html | 2026-02-01 |
 | #1150 | scris | closed: LLM extraction response variable (already fixed on develop) | 2026-02-01 |
+| #1077 | RoyLeviLangware | fix: bs4 deprecation warning (text -> string) | 2026-02-01 |
+| #1281 | garyluky | fix: proxy auth ERR_INVALID_AUTH_CREDENTIALS | 2026-02-01 |

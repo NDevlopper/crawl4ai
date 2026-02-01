@@ -29,6 +29,8 @@ We would like to thank the following people for their contributions to Crawl4AI:
 - [christian-oudard](https://github.com/christian-oudard) - fix: deep-crawl CLI outputting only the first page [#1667](https://github.com/unclecode/crawl4ai/pull/1667)
 - [vladmandic](https://github.com/vladmandic) - fix: VersionManager ignoring CRAWL4_AI_BASE_DIRECTORY env var [#1296](https://github.com/unclecode/crawl4ai/pull/1296)
 - [nnxiong](https://github.com/nnxiong) - fix: script tag removal losing adjacent text in cleaned_html [#1364](https://github.com/unclecode/crawl4ai/pull/1364)
+- [RoyLeviLangware](https://github.com/RoyLeviLangware) - fix: bs4 deprecation warning (text -> string) [#1077](https://github.com/unclecode/crawl4ai/pull/1077)
+- [garyluky](https://github.com/garyluky) - fix: proxy auth ERR_INVALID_AUTH_CREDENTIALS [#1281](https://github.com/unclecode/crawl4ai/pull/1281)
 
 #### Feb-Alpha-1
 - [sufianuddin](https://github.com/sufianuddin) - fix: [Documentation for JsonCssExtractionStrategy](https://github.com/unclecode/crawl4ai/issues/651)
