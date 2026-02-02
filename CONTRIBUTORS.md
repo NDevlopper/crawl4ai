@@ -32,6 +32,9 @@ We would like to thank the following people for their contributions to Crawl4AI:
 - [RoyLeviLangware](https://github.com/RoyLeviLangware) - fix: bs4 deprecation warning (text -> string) [#1077](https://github.com/unclecode/crawl4ai/pull/1077)
 - [garyluky](https://github.com/garyluky) - fix: proxy auth ERR_INVALID_AUTH_CREDENTIALS [#1281](https://github.com/unclecode/crawl4ai/pull/1281)
 - [Martichou](https://github.com/Martichou) - investigation: browser context memory leak under continuous load [#1640](https://github.com/unclecode/crawl4ai/pull/1640), [#943](https://github.com/unclecode/crawl4ai/issues/943)
+- [danyQe](https://github.com/danyQe) - identified: temperature typo in async_configs.py [#973](https://github.com/unclecode/crawl4ai/pull/973)
+- [saipavanmeruga7797](https://github.com/saipavanmeruga7797) - identified: local HTML file crawling bug with capture_console_messages [#1073](https://github.com/unclecode/crawl4ai/pull/1073)
+- [stevenaldinger](https://github.com/stevenaldinger) - identified: duplicate PROMPT_EXTRACT_BLOCKS dead code in prompts.py [#931](https://github.com/unclecode/crawl4ai/pull/931)
 
 #### Feb-Alpha-1
 - [sufianuddin](https://github.com/sufianuddin) - fix: [Documentation for JsonCssExtractionStrategy](https://github.com/unclecode/crawl4ai/issues/651)
