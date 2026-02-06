@@ -59,8 +59,8 @@
 | #1668 | microHoffman | Add `--json-ensure-ascii` CLI flag for Unicode handling. Clean, small. | pending |
 | #1650 | KennyStryker | Add support for Vertex AI in LLM Extraction Strategy. | pending |
 | #1580 | arpagon | Add Azure OpenAI configuration support to crwl config. | pending |
-| #1463 | TristanDonze | Add configurable `device_scale_factor` for screenshot quality. 3 files, clean. | pending |
-| #1435 | charlaie | Add `redirected_status_code` to CrawlResult. 3 files, clean. | pending |
+| ~~#1463~~ | ~~TristanDonze~~ | ~~Add configurable `device_scale_factor` for screenshot quality. 3 files, clean.~~ | **merged** |
+| ~~#1435~~ | ~~charlaie~~ | ~~Add `redirected_status_code` to CrawlResult. 3 files, clean.~~ | **merged** |
 | #1425 | denrusio | Add OpenRouter API support. | pending |
 | #1417 | NickMandylas | Add CDP headers support for remote browser auth (AWS Bedrock etc). | pending |
 | #1290 | 130347665 | Support type-list pipeline in JsonElementExtraction (multi-step extract). | pending |
@@ -212,3 +212,6 @@
 | #1696 | majiayu000 | closed: duplicate of #1722 | 2026-02-02 |
 | #1478 | e1codes | closed: duplicate of #1715 | 2026-02-02 |
 | #1465 | fardhanrasya | closed: duplicate of #1715 | 2026-02-02 |
+| #1450 | rbushri | closed: litellm handles response field normalization | 2026-02-06 |
+| #1463 | TristanDonze | feat: add configurable device_scale_factor for screenshot quality | 2026-02-06 |
+| #1435 | charlaie | feat: add redirected_status_code to CrawlResult | 2026-02-06 |
