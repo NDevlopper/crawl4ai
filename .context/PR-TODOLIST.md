@@ -1,6 +1,6 @@
 # PR Review Todolist
 
-> Last updated: 2026-02-02 | Total open PRs: 95
+> Last updated: 2026-02-06 | Total open PRs: ~63
 
 ---
 
@@ -18,8 +18,8 @@
 | ~~#1640~~ | ~~Martichou~~ | ~~Fix memory leak — unused browser contexts never cleaned up under continuous load. (#943)~~ | **closed** |
 | #1622 | Ahmed-Tawfik94 | Fix redirect target verification in AsyncUrlSeeder and enhance tests. | pending |
 | #1592 | Ahmed-Tawfik94 | Fix CDP page leaks and race conditions in concurrent crawling. (#1563) | pending |
-| #1572 | yuexuan-chen | Fix CDP setting with managed browser. | pending |
-| #1450 | prlz77 | Fix LLM extraction fails when content is in alternative response fields. | pending |
+| #1572 | Ahmed-Tawfik94 | Fix CDP setting with managed browser. | pending |
+| #1450 | rbushri | Fix LLM extraction fails when content is in alternative response fields. | pending |
 | ~~#1364~~ | ~~nnxiong~~ | ~~Fix `<script>` tag removal losing adjacent text in `cleaned_html`.~~ | **merged** |
 | #1308 | dominicx | Fix css_selector variable type error (assigned to list). | pending |
 | ~~#1296~~ | ~~vladmandic~~ | ~~Fix `VersionManager` ignoring `CRAWL4_AI_BASE_DIRECTORY` env var. 1-line fix.~~ | **merged** |
@@ -30,18 +30,19 @@
 | #1200 | fischerdr | Bugfix browser manager session handling. | pending |
 | #1179 | phamngocquy | Fix leak token when input url as raw html. | pending |
 | ~~#1150~~ | ~~scris~~ | ~~Fix LLM extraction `response` variable not overridden causing `'str' has no attribute 'choices'`.~~ | **closed (already fixed)** |
-| #1133 | chrizzly2309 | Enforce auth when JWT is enabled. 1-line fix. | pending |
+| ~~#1133~~ | ~~chrizzly2309~~ | ~~Enforce auth when JWT is enabled. 1-line fix.~~ | **closed (already fixed)** |
 | #1106 | devxpain | Fix: Adapt to CrawlerMonitor constructor change. | pending |
 | #1081 | Joorrit | Fix deep crawl scorer logic was inverted — high-distance paths scored higher. | **needs work (commented)** |
 | ~~#1077~~ | ~~RoyLeviLangware~~ | ~~Fix bs4 deprecation warning (`text` -> `string`). 1 line.~~ | **merged** |
-| #1073 | saipavanmeruga7797 | Fix local HTML file crawling broken when `capture_console_messages=False`. | pending |
+| ~~#1073~~ | ~~saipavanmeruga7797~~ | ~~Fix local HTML file crawling broken when `capture_console_messages=False`.~~ | **closed (already fixed)** |
 | #1065 | mccullya | Fix: Update deprecated Groq models to recommended replacements. | pending |
 | #1059 | Aaron2516 | Fix wrong proxy config type in proxy demo example. | pending |
 | #1058 | Aaron2516 | Fix dict-type `proxy_config` not handled properly. (#1057) | pending |
 | #983 | umerkhan95 | Fix memory leak and empty responses in streaming mode. (#980) | pending |
-| #973 | danyQe | Fix typo of `temperature` in async_configs.py. 1 line. | pending |
+| ~~#973~~ | ~~danyQe~~ | ~~Fix typo of `temperature` in async_configs.py. 1 line.~~ | **closed (already fixed)** |
 | #948 | GeorgeVince | Fix `summarize_page.py` example. | pending |
-| #729 | complete-dope | Fix: Logging for Error. 1-line fix. | pending |
+| ~~#729~~ | ~~complete-dope~~ | ~~Fix: Logging for Error. 1-line fix.~~ | **closed (already fixed)** |
+| #462 | jtanningbed | Fix: Add newline before pre codeblock start in html2text. 1-line fix. | pending |
 
 ## Good Features
 
@@ -75,6 +76,9 @@
 | #741 | atomlong | Add config option to control Content-Security-Policy header. | pending |
 | #723 | alexandreolives | Optional close page after screenshot. | pending |
 | #681 | ksallee | JS execution should happen after waiting (reorder in strategy). | pending |
+| #416 | dar0xt | Add keep-aria-label-attribute option. 6 files. | pending |
+| #332 | nelzomal | Add remove_invisible_texts method to crawler strategy. | pending |
+| #312 | AndreaFrancis | Add save to HuggingFace support for async webcrawler. 367 additions, 9 files. | pending |
 
 ## Quick Doc/Maintenance Merges
 
@@ -84,7 +88,7 @@
 | #1722 | YuriNachos | Add missing docstring to MCP `md` endpoint. | pending |
 | #1716 | YuriNachos | Fix wrong return types in arun/arun_many docs. | pending |
 | #1715 | YuriNachos | Add missing `CacheMode` import in quickstart docs. | pending |
-| #1655 | daviddl9 | Replace Chinese comment with English in nullcontext method. 1 line. | pending |
+| ~~#1655~~ | ~~daviddl9~~ | ~~Replace Chinese comment with English in nullcontext method. 1 line.~~ | **closed (keeping intentionally)** |
 | #1494 | AkosLukacs | Fix wrong param name in `arun()` docstring. | pending |
 | #1488 | AkosLukacs | Fix syntax error in README JSON example. | pending |
 | #1483 | NiclasLindqvist | Update README.md with latest docker image. | pending |
@@ -97,10 +101,11 @@
 | #1098 | B-X-Y | Docs: fix outdated links to Docker guide and release notes. | pending |
 | #1093 | Aaron2516 | Docs: Fixed incorrect elapsed calculation and output format. | pending |
 | #948 | GeorgeVince | Fix `summarize_page.py` example. | pending |
-| #931 | stevenaldinger | Remove duplicate variable definition dead code in prompts.py. | pending |
+| ~~#931~~ | ~~stevenaldinger~~ | ~~Remove duplicate variable definition dead code in prompts.py.~~ | **closed (fixed ourselves)** |
 | #967 | prajjwalnag | Update README.md. | pending |
 | #671 | SteveAlphaVantage | Update README.md. | pending |
 | #605 | mochamadsatria | Fix typo in docker-deployment.md filename. | pending |
+| #335 | amanagarwal042 | Add Documentation for Monitoring with OpenTelemetry. | pending |
 
 ## Duplicates (Close These)
 
@@ -109,44 +114,45 @@
 | ~~#1703~~ | ~~#1721~~ | ~~Same `<base>` tag fix~~ **closed** |
 | ~~#1698~~ | ~~#1721~~ | ~~Same `<base>` tag fix~~ **closed** |
 | ~~#1697~~ | ~~#1717~~ | ~~Same embeddings fallback fix~~ **closed** |
-| #1696 | #1722 | Same MCP docstring fix |
+| ~~#1696~~ | ~~#1722~~ | ~~Same MCP docstring fix~~ **closed** |
 | ~~#1710~~ | ~~#1719~~ | ~~Same script.js packaging fix~~ **closed** |
-| #1478 | #1715 | Same quickstart CacheMode fix |
-| #1465 | #1715 | Same quickstart example fix |
+| ~~#1478~~ | ~~#1715~~ | ~~Same quickstart CacheMode fix~~ **closed** |
+| ~~#1465~~ | ~~#1715~~ | ~~Same quickstart example fix~~ **closed** |
 | #800 | #1668 | Overlaps with `--json-ensure-ascii` feature |
+| #475 | #1296 | Same `CRAWL4_AI_BASE_DIRECTORY` fix for VersionManager, DocsManager, migrations. #1296 already merged. |
 
 ## Skip / Close
 
-| PR | Author | Why |
-|----|--------|-----|
-| #1600 | cbwinslow | "ASDF" — 10,644 additions, 39 files, no description. Accidental dump. |
-| #1569 | Ahmed-Tawfik94 | 17,425 additions, 50 files, unsolicited massive Docker feature dump. |
-| #1630 | Daniel21b | 4,637 additions, unsolicited enterprise JWT auth system. |
-| #1700 | chansearrington | Claude Code as LLM provider — 1,457 additions, 17 files. Too large/niche. |
-| #1525 | leoric-crown | MCP transport rewrite — 5,978 additions, 38 files. Massive refactor. |
-| #1565 | TrungLee2020 | Vietnamese real estate crawler scripts, not core. |
-| #1100 | xerexesx | "Add files via upload" — 0 changes, empty. |
-| #1110 | lwsinclair | "Add MseeP.ai badge" — marketing badge spam. |
-| #1724 | git-pranavbabu | PR title is the entire template. 1 trivial verbose param change. |
-| #1547 | mziv | lxml update — touches 100 files (lockfile). Needs careful review. |
-| #1395 | granolacowboy | "Feature/interactive wizard" — no description. |
-| #1408 | PATAKAMURIVENKATAGANESH | "Basic Health Check Endpoint" — no description filled. |
-| #1533 | unclecode | Add Claude Code GitHub Workflow — CI workflow, not core. |
-| #1274 | Fiser12 | Devcontainer support — 913 additions, dev tooling. |
-| #1420 | ntohidi | Opt-in telemetry system — 3,208 additions. Too large/sensitive. |
-| #1497 | Akeemkabiru | Firecrawl backend support — 191 additions, niche integration. |
-| #1496 | Ahmed-Tawfik94 | normalize_url refactor — 869 additions, too large for URL normalization. |
-| #1518 | YorelN | Docker PDF strategy — 324 additions, Docker-specific. |
-| #1413 | GarfieldTheOldCat | Full scan update — 290 additions, unclear scope. |
-| #1373 | ywatanabe1989 | MCP server endpoint fixes — 753 additions, large. |
-| #1212 | ACakshay | Stateless streamable_http transport for MCP — 154 additions. |
-| #1157 | yesidc | Content change detection — 229 additions, feature scope unclear. |
-| #1140 | tmocky1134 | Prompt-driven recursive crawler script — 268 additions, not core. |
-| #1124 | unclecode | VNC streaming support — 98 additions, niche. |
-| #1068 | jeremygiberson | Playground enhancement — 158 additions, separate feature. |
-| #1083 | Sacristaan | Provider base url feature — 40 additions, overlaps with #1220. |
-| #865 | janbuchar | Apify Actor sponsorship — 4,384 additions, external integration. |
-| #680 | lassedrud | 79,791 additions, Jupyter notebook for Legat4me. Not core. |
+| PR | Author | Why | Status |
+|----|--------|-----|--------|
+| ~~#1600~~ | ~~cbwinslow~~ | ~~"ASDF" — 10,644 additions, no description. Accidental dump.~~ | **closed** |
+| ~~#1569~~ | ~~Ahmed-Tawfik94~~ | ~~17,425 additions, 50 files, unsolicited massive Docker feature dump.~~ | **closed** |
+| ~~#1630~~ | ~~Daniel21b~~ | ~~4,637 additions, unsolicited enterprise JWT auth system.~~ | **closed** |
+| ~~#1700~~ | ~~chansearrington~~ | ~~Claude Code as LLM provider — 1,457 additions, 17 files. Too large/niche.~~ | **closed** |
+| ~~#1525~~ | ~~leoric-crown~~ | ~~MCP transport rewrite — 5,978 additions, 38 files. Massive refactor.~~ | **closed** |
+| ~~#1565~~ | ~~TrungLee2020~~ | ~~Vietnamese real estate crawler scripts, not core.~~ | **closed** |
+| ~~#1100~~ | ~~xerexesx~~ | ~~"Add files via upload" — 0 changes, empty.~~ | **closed** |
+| ~~#1110~~ | ~~lwsinclair~~ | ~~"Add MseeP.ai badge" — marketing badge spam.~~ | **closed** |
+| ~~#1724~~ | ~~git-pranavbabu~~ | ~~PR title is the entire template. 1 trivial verbose param change.~~ | **closed** |
+| ~~#1547~~ | ~~mziv~~ | ~~lxml update — touches 100 files (lockfile). Needs careful review.~~ | **closed** |
+| ~~#1395~~ | ~~granolacowboy~~ | ~~"Feature/interactive wizard" — no description.~~ | **closed** |
+| ~~#1408~~ | ~~PATAKAMURIVENKATAGANESH~~ | ~~"Basic Health Check Endpoint" — no description filled.~~ | **closed** |
+| #1533 | unclecode | Add Claude Code GitHub Workflow — CI workflow, not core. | **skipped (owner's PR)** |
+| ~~#1274~~ | ~~Fiser12~~ | ~~Devcontainer support — 913 additions, dev tooling.~~ | **closed** |
+| ~~#1420~~ | ~~ntohidi~~ | ~~Opt-in telemetry system — 3,208 additions. Too large/sensitive.~~ | **closed** |
+| ~~#1497~~ | ~~Akeemkabiru~~ | ~~Firecrawl backend support — 191 additions, niche integration.~~ | **closed** |
+| ~~#1496~~ | ~~Ahmed-Tawfik94~~ | ~~normalize_url refactor — 869 additions, too large for URL normalization.~~ | **closed** |
+| ~~#1518~~ | ~~YorelN~~ | ~~Docker PDF strategy — 324 additions, Docker-specific.~~ | **closed** |
+| ~~#1413~~ | ~~GarfieldTheOldCat~~ | ~~Full scan update — 290 additions, unclear scope.~~ | **closed** |
+| ~~#1373~~ | ~~ywatanabe1989~~ | ~~MCP server endpoint fixes — 753 additions, large.~~ | **closed** |
+| ~~#1212~~ | ~~ACakshay~~ | ~~Stateless streamable_http transport for MCP — 154 additions.~~ | **closed** |
+| ~~#1157~~ | ~~yesidc~~ | ~~Content change detection — 229 additions, feature scope unclear.~~ | **closed** |
+| ~~#1140~~ | ~~tmocky1134~~ | ~~Prompt-driven recursive crawler script — 268 additions, not core.~~ | **closed** |
+| #1124 | unclecode | VNC streaming support — 98 additions, niche. | **skipped (owner's PR)** |
+| ~~#1068~~ | ~~jeremygiberson~~ | ~~Playground enhancement — 158 additions, separate feature.~~ | **closed** |
+| ~~#1083~~ | ~~Sacristaan~~ | ~~Provider base url feature — 40 additions, overlaps with #1220.~~ | **closed** |
+| ~~#865~~ | ~~janbuchar~~ | ~~Apify Actor sponsorship — 4,384 additions, external integration.~~ | **closed** |
+| ~~#680~~ | ~~lassedrud~~ | ~~79,791 additions, Jupyter notebook for Legat4me. Not core.~~ | **closed** |
 
 ---
 
@@ -171,3 +177,38 @@
 | #1150 | scris | closed: LLM extraction response variable (already fixed on develop) | 2026-02-01 |
 | #1077 | RoyLeviLangware | fix: bs4 deprecation warning (text -> string) | 2026-02-01 |
 | #1281 | garyluky | fix: proxy auth ERR_INVALID_AUTH_CREDENTIALS | 2026-02-01 |
+| #973 | danyQe | closed: temperature typo (already fixed on develop) | 2026-02-02 |
+| #1073 | saipavanmeruga7797 | closed: local HTML capture_console bug (already fixed on develop) | 2026-02-02 |
+| #931 | stevenaldinger | closed: duplicate PROMPT_EXTRACT_BLOCKS removed (fixed ourselves) | 2026-02-02 |
+| #1655 | daviddl9 | closed: Chinese docstring kept intentionally | 2026-02-02 |
+| #1133 | chrizzly2309 | closed: JWT auth bypass (already fixed on develop) | 2026-02-02 |
+| #729 | complete-dope | closed: console logging error (already fixed on develop) | 2026-02-02 |
+| #1600 | cbwinslow | closed: accidental dump (ASDF) | 2026-02-02 |
+| #1100 | xerexesx | closed: empty PR | 2026-02-02 |
+| #1110 | lwsinclair | closed: marketing badge spam | 2026-02-02 |
+| #1724 | git-pranavbabu | closed: template PR title, trivial | 2026-02-02 |
+| #1569 | Ahmed-Tawfik94 | closed: too large (17k+ additions) | 2026-02-02 |
+| #1630 | Daniel21b | closed: too large, unsolicited JWT auth | 2026-02-02 |
+| #1700 | chansearrington | closed: too large, niche LLM provider | 2026-02-02 |
+| #1525 | leoric-crown | closed: too large, MCP rewrite | 2026-02-02 |
+| #1420 | ntohidi | closed: too large, telemetry system | 2026-02-02 |
+| #1497 | Akeemkabiru | closed: niche Firecrawl integration | 2026-02-02 |
+| #1518 | YorelN | closed: Docker PDF strategy | 2026-02-02 |
+| #1274 | Fiser12 | closed: devcontainer support | 2026-02-02 |
+| #1413 | GarfieldTheOldCat | closed: unclear scope | 2026-02-02 |
+| #1373 | ywatanabe1989 | closed: too large, MCP fixes | 2026-02-02 |
+| #1212 | ACakshay | closed: MCP transport | 2026-02-02 |
+| #1157 | yesidc | closed: overlaps existing cache freshness | 2026-02-02 |
+| #1140 | tmocky1134 | closed: not core | 2026-02-02 |
+| #1068 | jeremygiberson | closed: playground feature | 2026-02-02 |
+| #865 | janbuchar | closed: external Apify integration | 2026-02-02 |
+| #680 | lassedrud | closed: 80k additions, Jupyter notebook | 2026-02-02 |
+| #1547 | mziv | closed: 100-file lockfile update | 2026-02-02 |
+| #1496 | Ahmed-Tawfik94 | closed: too large normalize_url refactor | 2026-02-02 |
+| #1565 | TrungLee2020 | closed: not core (Vietnamese crawler scripts) | 2026-02-02 |
+| #1083 | Sacristaan | closed: overlaps with #1220 | 2026-02-02 |
+| #1395 | granolacowboy | closed: no description | 2026-02-02 |
+| #1408 | PATAKAMURIVENKATAGANESH | closed: no description | 2026-02-02 |
+| #1696 | majiayu000 | closed: duplicate of #1722 | 2026-02-02 |
+| #1478 | e1codes | closed: duplicate of #1715 | 2026-02-02 |
+| #1465 | fardhanrasya | closed: duplicate of #1715 | 2026-02-02 |
