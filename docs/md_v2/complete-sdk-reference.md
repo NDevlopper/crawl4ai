@@ -1787,6 +1787,7 @@ run_cfg = CrawlerRunConfig(
 | **`scroll_delay`**         | `float` (0.2)                  | Delay between scroll steps if `scan_full_page=True`.                                                                                   |
 | **`process_iframes`**      | `bool` (False)                 | Inlines iframe content for single-page extraction.                                                                                     |
 | **`remove_overlay_elements`** | `bool` (False)              | Removes potential modals/popups blocking the main content.                                                                              |
+| **`remove_consent_popups`** | `bool` (False)               | Removes GDPR/cookie consent popups from known CMP providers (OneTrust, Cookiebot, TrustArc, Quantcast, Didomi, Sourcepoint, FundingChoices, etc.). Tries clicking "Accept All" first, then falls back to DOM removal. |
 | **`simulate_user`**        | `bool` (False)                 | Simulate user interactions (mouse movements) to avoid bot detection.                                                                    |
 | **`override_navigator`**   | `bool` (False)                 | Override `navigator` properties in JS for stealth.                                                                                      |
 | **`magic`**                | `bool` (False)                 | Automatic handling of popups/consent banners. Experimental.                                                                             |
@@ -3344,8 +3345,9 @@ Below are the key interaction-related parameters in `CrawlerRunConfig`. For a fu
 - **`wait_for`**: CSS (`"css:..."`) or JS (`"js:..."`) expression to wait for.  
 - **`session_id`**: Reuse the same page across calls.  
 - **`cache_mode`**: Whether to read/write from the cache or bypass.  
-- **`remove_overlay_elements`**: Remove certain popups automatically.  
-- **`simulate_user`, `override_navigator`, `magic`**: Anti-bot or “human-like” interactions.
+- **`remove_overlay_elements`**: Remove certain popups automatically.
+- **`remove_consent_popups`**: Remove GDPR/cookie consent popups from known CMP providers (OneTrust, Cookiebot, Didomi, etc.).
+- **`simulate_user`, `override_navigator`, `magic`**: Anti-bot or "human-like" interactions.
 ## 8. Conclusion
 1. **Execute JavaScript** for scrolling, clicks, or form filling.  
 2. **Wait** for CSS or custom JS conditions before capturing data.  

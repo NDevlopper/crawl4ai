@@ -153,8 +153,10 @@ Some sites embed content in `<iframe>` tags. If you want that inline:
 ```python
 config = CrawlerRunConfig(
     # Merge iframe content into the final output
-    process_iframes=True,    
-    remove_overlay_elements=True
+    process_iframes=True,
+    remove_overlay_elements=True,
+    # Remove GDPR/cookie consent popups (OneTrust, Cookiebot, etc.)
+    remove_consent_popups=True
 )
 ```
 

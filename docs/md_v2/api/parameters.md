@@ -159,6 +159,7 @@ Use these for controlling whether you read or write from a local content cache. 
 | **`max_scroll_steps`**     | `int or None` (None)           | Maximum number of scroll steps during full page scan. If None, scrolls until entire page is loaded.                                     |
 | **`process_iframes`**      | `bool` (False)                 | Inlines iframe content for single-page extraction.                                                                                     |
 | **`remove_overlay_elements`** | `bool` (False)              | Removes potential modals/popups blocking the main content.                                                                              |
+| **`remove_consent_popups`** | `bool` (False)               | Removes GDPR/cookie consent popups from known CMP providers (OneTrust, Cookiebot, TrustArc, Quantcast, Didomi, Sourcepoint, FundingChoices, etc.). Tries clicking "Accept All" first, then falls back to DOM removal. |
 | **`simulate_user`**        | `bool` (False)                 | Simulate user interactions (mouse movements) to avoid bot detection.                                                                    |
 | **`override_navigator`**   | `bool` (False)                 | Override `navigator` properties in JS for stealth.                                                                                      |
 | **`magic`**                | `bool` (False)                 | Automatic handling of popups/consent banners. Experimental.                                                                             |

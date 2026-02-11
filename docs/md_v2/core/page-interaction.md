@@ -326,8 +326,9 @@ Below are the key interaction-related parameters in `CrawlerRunConfig`. For a fu
 - **`wait_for`**: CSS (`"css:..."`) or JS (`"js:..."`) expression to wait for.  
 - **`session_id`**: Reuse the same page across calls.  
 - **`cache_mode`**: Whether to read/write from the cache or bypass.  
-- **`remove_overlay_elements`**: Remove certain popups automatically.  
-- **`simulate_user`, `override_navigator`, `magic`**: Anti-bot or “human-like” interactions.
+- **`remove_overlay_elements`**: Remove certain popups automatically.
+- **`remove_consent_popups`**: Remove GDPR/cookie consent popups from known CMP providers (OneTrust, Cookiebot, Didomi, etc.).
+- **`simulate_user`, `override_navigator`, `magic`**: Anti-bot or "human-like" interactions.
 
 ---
 

@@ -465,6 +465,7 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
                 config.wait_for or
                 config.scan_full_page or
                 config.remove_overlay_elements or
+                config.remove_consent_popups or
                 config.simulate_user or
                 config.magic or
                 config.process_iframes or
@@ -972,6 +973,10 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
             if config.delay_before_return_html:
                 await asyncio.sleep(config.delay_before_return_html)
 
+            # Handle CMP/consent popup removal (before generic overlay removal)
+            if config.remove_consent_popups:
+                await self.remove_consent_popups(page)
+
             # Handle overlay removal
             if config.remove_overlay_elements:
                 await self.remove_overlay_elements(page)
@@ -1443,6 +1448,50 @@ class AsyncPlaywrightCrawlerStrategy(AsyncCrawlerStrategy):
         except Exception as e:
             self.logger.warning(
                 message="Failed to remove overlay elements: {error}",
+                tag="SCRAPE",
+                params={"error": str(e)},
+            )
+
+    async def remove_consent_popups(self, page: Page) -> None:
+        """
+        Removes GDPR/cookie consent popups from known CMP providers (OneTrust, Cookiebot,
+        TrustArc, Quantcast, Didomi, Usercentrics, Sourcepoint, Klaro, Osano, Iubenda,
+        Complianz, CookieYes, ConsentManager, LiveRamp/Fides, etc.).
+
+        Strategy:
+        1. Try clicking "Accept All" buttons (cleanest dismissal, sets cookies)
+        2. Try IAB TCF / CMP JavaScript APIs
+        3. Remove known CMP containers by selector
+        4. Handle iframe-based CMPs
+        5. Restore body scroll
+
+        Args:
+            page (Page): The Playwright page instance
+        """
+        remove_consent_js = load_js_script("remove_consent_popups")
+
+        try:
+            await self.adapter.evaluate(page,
+                f"""
+                (async () => {{
+                    try {{
+                        const removeConsent = {remove_consent_js};
+                        await removeConsent();
+                        return {{ success: true }};
+                    }} catch (error) {{
+                        return {{
+                            success: false,
+                            error: error.toString(),
+                            stack: error.stack
+                        }};
+                    }}
+                }})()
+            """
+            )
+            await page.wait_for_timeout(500)  # Wait for any animations to complete
+        except Exception as e:
+            self.logger.warning(
+                message="Failed to remove consent popups: {error}",
                 tag="SCRAPE",
                 params={"error": str(e)},
             )

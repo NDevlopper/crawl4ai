@@ -734,6 +734,12 @@ class BrowserConfig:
 
     @staticmethod
     def from_kwargs(kwargs: dict) -> "BrowserConfig":
+        # Auto-deserialize any dict values that use the {"type": ..., "params": ...}
+        # serialization format (e.g. from JSON API requests or dump()/load() roundtrips).
+        kwargs = {
+            k: from_serializable_dict(v) if isinstance(v, dict) and "type" in v else v
+            for k, v in kwargs.items()
+        }
         return BrowserConfig(
             browser_type=kwargs.get("browser_type", "chromium"),
             headless=kwargs.get("headless", True),
@@ -1282,6 +1288,10 @@ class CrawlerRunConfig():
                                 Default: False.
         remove_overlay_elements (bool): If True, remove overlays/popups before extracting HTML.
                                         Default: False.
+        remove_consent_popups (bool): If True, remove GDPR/cookie consent popups (IAB TCF/CMP)
+                                      before extracting HTML. Targets known CMP providers like
+                                      OneTrust, Cookiebot, TrustArc, Quantcast, Didomi, etc.
+                                      Default: False.
         simulate_user (bool): If True, simulate user interactions (mouse moves, clicks) for anti-bot measures.
                               Default: False.
         override_navigator (bool): If True, overrides navigator properties for more human-like behavior.
@@ -1445,6 +1455,7 @@ class CrawlerRunConfig():
         max_scroll_steps: Optional[int] = None,
         process_iframes: bool = False,
         remove_overlay_elements: bool = False,
+        remove_consent_popups: bool = False,
         simulate_user: bool = False,
         override_navigator: bool = False,
         magic: bool = False,
@@ -1573,6 +1584,7 @@ class CrawlerRunConfig():
         self.max_scroll_steps = max_scroll_steps
         self.process_iframes = process_iframes
         self.remove_overlay_elements = remove_overlay_elements
+        self.remove_consent_popups = remove_consent_popups
         self.simulate_user = simulate_user
         self.override_navigator = override_navigator
         self.magic = magic
@@ -1798,6 +1810,13 @@ class CrawlerRunConfig():
 
     @staticmethod
     def from_kwargs(kwargs: dict) -> "CrawlerRunConfig":
+        # Auto-deserialize any dict values that use the {"type": ..., "params": ...}
+        # serialization format (e.g. from JSON API requests or dump()/load() roundtrips).
+        # This covers markdown_generator, extraction_strategy, content_filter, etc.
+        kwargs = {
+            k: from_serializable_dict(v) if isinstance(v, dict) and "type" in v else v
+            for k, v in kwargs.items()
+        }
         return CrawlerRunConfig(
             # Content Processing Parameters
             word_count_threshold=kwargs.get("word_count_threshold", 200),
@@ -1854,6 +1873,7 @@ class CrawlerRunConfig():
             max_scroll_steps=kwargs.get("max_scroll_steps"),
             process_iframes=kwargs.get("process_iframes", False),
             remove_overlay_elements=kwargs.get("remove_overlay_elements", False),
+            remove_consent_popups=kwargs.get("remove_consent_popups", False),
             simulate_user=kwargs.get("simulate_user", False),
             override_navigator=kwargs.get("override_navigator", False),
             magic=kwargs.get("magic", False),
@@ -1978,6 +1998,7 @@ class CrawlerRunConfig():
             "max_scroll_steps": self.max_scroll_steps,
             "process_iframes": self.process_iframes,
             "remove_overlay_elements": self.remove_overlay_elements,
+            "remove_consent_popups": self.remove_consent_popups,
             "simulate_user": self.simulate_user,
             "override_navigator": self.override_navigator,
             "magic": self.magic,
