@@ -740,49 +740,10 @@ class BrowserConfig:
             k: from_serializable_dict(v) if isinstance(v, dict) and "type" in v else v
             for k, v in kwargs.items()
         }
-        return BrowserConfig(
-            browser_type=kwargs.get("browser_type", "chromium"),
-            headless=kwargs.get("headless", True),
-            browser_mode=kwargs.get("browser_mode", "dedicated"),
-            use_managed_browser=kwargs.get("use_managed_browser", False),
-            cdp_url=kwargs.get("cdp_url"),
-            browser_context_id=kwargs.get("browser_context_id"),
-            target_id=kwargs.get("target_id"),
-            cdp_cleanup_on_close=kwargs.get("cdp_cleanup_on_close", False),
-            create_isolated_context=kwargs.get("create_isolated_context", False),
-            use_persistent_context=kwargs.get("use_persistent_context", False),
-            user_data_dir=kwargs.get("user_data_dir"),
-            chrome_channel=kwargs.get("chrome_channel", "chromium"),
-            channel=kwargs.get("channel", "chromium"),
-            proxy=kwargs.get("proxy"),
-            proxy_config=ProxyConfig.from_dict(kwargs.get("proxy_config")) if isinstance(kwargs.get("proxy_config"), dict) else kwargs.get("proxy_config", None),
-            viewport_width=kwargs.get("viewport_width", 1080),
-            viewport_height=kwargs.get("viewport_height", 600),
-            device_scale_factor=kwargs.get("device_scale_factor", 1.0),
-            accept_downloads=kwargs.get("accept_downloads", False),
-            downloads_path=kwargs.get("downloads_path"),
-            storage_state=kwargs.get("storage_state"),
-            ignore_https_errors=kwargs.get("ignore_https_errors", True),
-            java_script_enabled=kwargs.get("java_script_enabled", True),
-            cookies=kwargs.get("cookies", []),
-            headers=kwargs.get("headers", {}),
-            user_agent=kwargs.get(
-                "user_agent",
-                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
-            ),
-            user_agent_mode=kwargs.get("user_agent_mode"),
-            user_agent_generator_config=kwargs.get("user_agent_generator_config"),
-            text_mode=kwargs.get("text_mode", False),
-            light_mode=kwargs.get("light_mode", False),
-            extra_args=kwargs.get("extra_args", []),
-            debugging_port=kwargs.get("debugging_port", 9222),
-            host=kwargs.get("host", "localhost"),
-            enable_stealth=kwargs.get("enable_stealth", False),
-            init_scripts=kwargs.get("init_scripts", []),
-            memory_saving_mode=kwargs.get("memory_saving_mode", False),
-            max_pages_before_recycle=kwargs.get("max_pages_before_recycle", 0),
-        )
+        # Only pass keys present in kwargs so that __init__ defaults (and
+        # set_defaults() overrides) are respected for missing keys.
+        valid = inspect.signature(BrowserConfig.__init__).parameters.keys() - {"self"}
+        return BrowserConfig(**{k: v for k, v in kwargs.items() if k in valid})
 
     def to_dict(self):
         result = {
@@ -1817,123 +1778,10 @@ class CrawlerRunConfig():
             k: from_serializable_dict(v) if isinstance(v, dict) and "type" in v else v
             for k, v in kwargs.items()
         }
-        return CrawlerRunConfig(
-            # Content Processing Parameters
-            word_count_threshold=kwargs.get("word_count_threshold", 200),
-            extraction_strategy=kwargs.get("extraction_strategy"),
-            chunking_strategy=kwargs.get("chunking_strategy", RegexChunking()),
-            markdown_generator=kwargs.get("markdown_generator"),
-            only_text=kwargs.get("only_text", False),
-            css_selector=kwargs.get("css_selector"),
-            target_elements=kwargs.get("target_elements", []),
-            excluded_tags=kwargs.get("excluded_tags", []),
-            excluded_selector=kwargs.get("excluded_selector", ""),
-            keep_data_attributes=kwargs.get("keep_data_attributes", False),
-            keep_attrs=kwargs.get("keep_attrs", []),
-            remove_forms=kwargs.get("remove_forms", False),
-            prettiify=kwargs.get("prettiify", False),
-            parser_type=kwargs.get("parser_type", "lxml"),
-            scraping_strategy=kwargs.get("scraping_strategy"),
-            proxy_config=ProxyConfig.from_dict(kwargs.get("proxy_config")) if isinstance(kwargs.get("proxy_config"), dict) else kwargs.get("proxy_config"),
-            proxy_rotation_strategy=kwargs.get("proxy_rotation_strategy"),
-            # Sticky Proxy Session Parameters
-            proxy_session_id=kwargs.get("proxy_session_id"),
-            proxy_session_ttl=kwargs.get("proxy_session_ttl"),
-            proxy_session_auto_release=kwargs.get("proxy_session_auto_release", False),
-            # Browser Location and Identity Parameters
-            locale=kwargs.get("locale", None),
-            timezone_id=kwargs.get("timezone_id", None),
-            geolocation=kwargs.get("geolocation", None),
-            # SSL Parameters
-            fetch_ssl_certificate=kwargs.get("fetch_ssl_certificate", False),
-            # Caching Parameters
-            cache_mode=kwargs.get("cache_mode", CacheMode.BYPASS),
-            session_id=kwargs.get("session_id"),
-            bypass_cache=kwargs.get("bypass_cache", False),
-            disable_cache=kwargs.get("disable_cache", False),
-            no_cache_read=kwargs.get("no_cache_read", False),
-            no_cache_write=kwargs.get("no_cache_write", False),
-            shared_data=kwargs.get("shared_data", None),
-            # Page Navigation and Timing Parameters
-            wait_until=kwargs.get("wait_until", "domcontentloaded"),
-            page_timeout=kwargs.get("page_timeout", 60000),
-            wait_for=kwargs.get("wait_for"),
-            wait_for_timeout=kwargs.get("wait_for_timeout"),
-            wait_for_images=kwargs.get("wait_for_images", False),
-            delay_before_return_html=kwargs.get("delay_before_return_html", 0.1),
-            mean_delay=kwargs.get("mean_delay", 0.1),
-            max_range=kwargs.get("max_range", 0.3),
-            semaphore_count=kwargs.get("semaphore_count", 5),
-            # Page Interaction Parameters
-            js_code=kwargs.get("js_code"),
-            js_only=kwargs.get("js_only", False),
-            ignore_body_visibility=kwargs.get("ignore_body_visibility", True),
-            scan_full_page=kwargs.get("scan_full_page", False),
-            scroll_delay=kwargs.get("scroll_delay", 0.2),
-            max_scroll_steps=kwargs.get("max_scroll_steps"),
-            process_iframes=kwargs.get("process_iframes", False),
-            remove_overlay_elements=kwargs.get("remove_overlay_elements", False),
-            remove_consent_popups=kwargs.get("remove_consent_popups", False),
-            simulate_user=kwargs.get("simulate_user", False),
-            override_navigator=kwargs.get("override_navigator", False),
-            magic=kwargs.get("magic", False),
-            adjust_viewport_to_content=kwargs.get("adjust_viewport_to_content", False),
-            # Media Handling Parameters
-            screenshot=kwargs.get("screenshot", False),
-            screenshot_wait_for=kwargs.get("screenshot_wait_for"),
-            screenshot_height_threshold=kwargs.get(
-                "screenshot_height_threshold", SCREENSHOT_HEIGHT_TRESHOLD
-            ),
-            pdf=kwargs.get("pdf", False),
-            capture_mhtml=kwargs.get("capture_mhtml", False),
-            image_description_min_word_threshold=kwargs.get(
-                "image_description_min_word_threshold",
-                IMAGE_DESCRIPTION_MIN_WORD_THRESHOLD,
-            ),
-            image_score_threshold=kwargs.get(
-                "image_score_threshold", IMAGE_SCORE_THRESHOLD
-            ),
-            table_score_threshold=kwargs.get("table_score_threshold", 7),
-            table_extraction=kwargs.get("table_extraction", None),
-            exclude_all_images=kwargs.get("exclude_all_images", False),
-            exclude_external_images=kwargs.get("exclude_external_images", False),
-            # Link and Domain Handling Parameters
-            exclude_social_media_domains=kwargs.get(
-                "exclude_social_media_domains", SOCIAL_MEDIA_DOMAINS
-            ),
-            exclude_external_links=kwargs.get("exclude_external_links", False),
-            exclude_social_media_links=kwargs.get("exclude_social_media_links", False),
-            exclude_domains=kwargs.get("exclude_domains", []),
-            exclude_internal_links=kwargs.get("exclude_internal_links", False),
-            score_links=kwargs.get("score_links", False),
-            preserve_https_for_internal_links=kwargs.get("preserve_https_for_internal_links", False),
-            # Debugging and Logging Parameters
-            verbose=kwargs.get("verbose", True),
-            log_console=kwargs.get("log_console", False),
-            # Network and Console Capturing Parameters
-            capture_network_requests=kwargs.get("capture_network_requests", False),
-            capture_console_messages=kwargs.get("capture_console_messages", False),
-            # Connection Parameters
-            method=kwargs.get("method", "GET"),
-            stream=kwargs.get("stream", False),
-            prefetch=kwargs.get("prefetch", False),
-            process_in_browser=kwargs.get("process_in_browser", False),
-            check_robots_txt=kwargs.get("check_robots_txt", False),
-            user_agent=kwargs.get("user_agent"),
-            user_agent_mode=kwargs.get("user_agent_mode"),
-            user_agent_generator_config=kwargs.get("user_agent_generator_config", {}),
-            # Deep Crawl Parameters
-            deep_crawl_strategy=kwargs.get("deep_crawl_strategy"),
-            # Link Extraction Parameters
-            link_preview_config=kwargs.get("link_preview_config"),
-            url=kwargs.get("url"),
-            base_url=kwargs.get("base_url"),
-            # URL Matching Parameters
-            url_matcher=kwargs.get("url_matcher"),
-            match_mode=kwargs.get("match_mode", MatchMode.OR),
-            # Experimental Parameters 
-            experimental=kwargs.get("experimental"),
-        )
+        # Only pass keys present in kwargs so that __init__ defaults (and
+        # set_defaults() overrides) are respected for missing keys.
+        valid = inspect.signature(CrawlerRunConfig.__init__).parameters.keys() - {"self"}
+        return CrawlerRunConfig(**{k: v for k, v in kwargs.items() if k in valid})
 
     # Create a funciton returns dict of the object
     def dump(self) -> dict:
