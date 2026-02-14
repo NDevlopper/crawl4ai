@@ -13,39 +13,53 @@ After each crawl attempt, Crawl4AI inspects the HTTP status code and HTML conten
 
 Detection uses structural HTML markers (specific element IDs, script sources, form actions) rather than generic keywords to minimize false positives. A normal page that happens to mention "CAPTCHA" or "Cloudflare" in its content will not be flagged.
 
+When all attempts fail and blocking is still detected, the result is returned with `success=False` and `error_message` describing the block reason.
+
 ## Configuration Options
 
 All anti-bot retry options live on `CrawlerRunConfig`:
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
+| `proxy_config` | `ProxyConfig`, `list[ProxyConfig]`, or `None` | `None` | Single proxy or ordered list of proxies to try. Each retry round iterates through the full list. |
 | `max_retries` | `int` | `0` | Number of retry rounds when blocking is detected. `0` = no retries. |
-| `fallback_proxy_configs` | `list[ProxyConfig]` | `[]` | List of fallback proxies tried in order within each retry round. |
 | `fallback_fetch_function` | `async (str) -> str` | `None` | Async function called as last resort. Takes URL, returns raw HTML. |
-
-And on `ProxyConfig`:
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `is_fallback` | `bool` | `False` | When `True`, this proxy is skipped on the first attempt and only activated after blocking is detected. |
 
 ## Escalation Chain
 
-Each retry round tries the main proxy first, then each fallback proxy in order. If all rounds are exhausted and the page is still blocked, the fallback fetch function is called as a last resort.
+Each retry round tries every proxy in `proxy_config` in order. If all rounds are exhausted and the page is still blocked, the fallback fetch function is called as a last resort.
 
 ```
 For each round (1 + max_retries rounds):
-    1. Try with main proxy_config (or no proxy if is_fallback=True on first round)
-    2. If blocked → try fallback_proxy_configs[0]
-    3. If blocked → try fallback_proxy_configs[1]
-    4. ... continue through all fallback proxies
+    1. Try proxy_config[0] (or direct if proxy_config is None)
+    2. If blocked → try proxy_config[1]
+    3. If blocked → try proxy_config[2]
+    4. ... continue through all proxies
     5. If any attempt succeeds → done
 
 If all rounds exhausted and still blocked:
     6. Call fallback_fetch_function(url) → process returned HTML
 ```
 
-Worst-case attempts before the fetch function: `(1 + max_retries) x (1 + len(fallback_proxy_configs))`
+Worst-case attempts before the fetch function: `(1 + max_retries) x len(proxy_config)`
+
+## Crawl Stats
+
+Every crawl result includes a `crawl_stats` dict with detailed attempt tracking:
+
+```python
+result.crawl_stats = {
+    "attempts": 3,                    # total browser attempts made
+    "retries": 1,                     # retry rounds used (0 = succeeded first round)
+    "proxies_used": [                 # ordered list of every attempt
+        {"proxy": None,               "status_code": 403, "blocked": True,  "reason": "Akamai block (Reference #)"},
+        {"proxy": "proxy.io:8080",    "status_code": 403, "blocked": True,  "reason": "Akamai block (Reference #)"},
+        {"proxy": "premium.io:9090",  "status_code": 200, "blocked": False, "reason": ""},
+    ],
+    "fallback_fetch_used": False,     # whether fallback_fetch_function was called
+    "resolved_by": "proxy",           # "direct" | "proxy" | "fallback_fetch" | null (all failed)
+}
+```
 
 ## Usage Examples
 
@@ -64,9 +78,9 @@ async with AsyncWebCrawler(config=BrowserConfig(headless=True)) as crawler:
     )
 ```
 
-### Proxy as Fallback Only
+### Single Proxy
 
-Use `is_fallback=True` to skip the proxy on the first attempt. If the site doesn't block you, no proxy credits are consumed. If it does, the proxy activates on retry.
+Pass a single `ProxyConfig` — it's used on every attempt. Same behavior as always.
 
 ```python
 from crawl4ai.async_configs import ProxyConfig
@@ -77,24 +91,23 @@ config = CrawlerRunConfig(
         server="http://proxy.example.com:8080",
         username="user",
         password="pass",
-        is_fallback=True,  # Only used when blocking is detected
     ),
 )
 ```
 
-### Fallback Proxy List
+### Proxy List (Escalation)
 
-Try a cheaper proxy first, escalate to a premium proxy if it fails. Both are tried within each retry round.
+Pass a list of proxies. They're tried in order — first one that works wins. Within each retry round, the entire list is tried again.
 
 ```python
 config = CrawlerRunConfig(
-    max_retries=2,
-    proxy_config=ProxyConfig(
-        server="http://datacenter-proxy.example.com:8080",
-        username="user",
-        password="pass",
-    ),
-    fallback_proxy_configs=[
+    max_retries=1,
+    proxy_config=[
+        ProxyConfig(
+            server="http://datacenter-proxy.example.com:8080",
+            username="user",
+            password="pass",
+        ),
         ProxyConfig(
             server="http://residential-proxy.example.com:9090",
             username="user",
@@ -104,7 +117,7 @@ config = CrawlerRunConfig(
 )
 ```
 
-With this setup, each round tries the datacenter proxy first, then the residential proxy. With `max_retries=2`, worst case is 3 rounds x 2 proxies = 6 attempts.
+With this setup, each round tries the datacenter proxy first, then the residential proxy. With `max_retries=1`, worst case is 2 rounds x 2 proxies = 4 attempts.
 
 ### Fallback Fetch Function
 
@@ -137,7 +150,7 @@ The function can do anything — call an API, read from a database, return cache
 
 ### Full Escalation (All Features Combined)
 
-This example combines every layer: stealth mode, a fallback proxy that only activates when blocked, a list of escalation proxies tried each round, retries, and a final fetch function.
+This example combines every layer: stealth mode, a list of proxies tried in order, retries, and a final fetch function.
 
 ```python
 import aiohttp
@@ -164,16 +177,13 @@ crawl_config = CrawlerRunConfig(
     wait_until="load",
     max_retries=2,
 
-    # Primary proxy — is_fallback=True means first attempt runs without it
-    proxy_config=ProxyConfig(
-        server="http://datacenter-proxy.example.com:8080",
-        username="user",
-        password="pass",
-        is_fallback=True,
-    ),
-
-    # Fallback proxies — tried in order after main proxy fails each round
-    fallback_proxy_configs=[
+    # Proxies tried in order — cheapest first
+    proxy_config=[
+        ProxyConfig(
+            server="http://datacenter-proxy.example.com:8080",
+            username="user",
+            password="pass",
+        ),
         ProxyConfig(
             server="http://residential-proxy.example.com:9090",
             username="user",
@@ -193,6 +203,8 @@ async with AsyncWebCrawler(config=browser_config) as crawler:
 
     if result.success:
         print(f"Got {len(result.markdown.raw_markdown)} chars of markdown")
+        print(f"Resolved by: {result.crawl_stats['resolved_by']}")
+        print(f"Attempts: {result.crawl_stats['attempts']}")
     else:
         print(f"All attempts failed: {result.error_message}")
 ```
@@ -201,12 +213,12 @@ async with AsyncWebCrawler(config=browser_config) as crawler:
 
 | Round | Attempt | What runs |
 |---|---|---|
-| 1 | 1 | No proxy (is_fallback skips it) — blocked |
-| 1 | 2 | Residential fallback proxy — blocked (bad IP) |
-| 2 | 1 | Datacenter proxy activated — blocked |
-| 2 | 2 | Residential fallback proxy — blocked |
+| 1 | 1 | Datacenter proxy — blocked |
+| 1 | 2 | Residential proxy — blocked |
+| 2 | 1 | Datacenter proxy — blocked |
+| 2 | 2 | Residential proxy — blocked |
 | 3 | 1 | Datacenter proxy — blocked |
-| 3 | 2 | Residential fallback proxy — blocked |
+| 3 | 2 | Residential proxy — blocked |
 | - | - | `external_fetch(url)` called — returns HTML |
 
 That's up to 6 browser attempts + 1 function call before giving up.
@@ -214,19 +226,10 @@ That's up to 6 browser attempts + 1 function call before giving up.
 ## Tips
 
 - **Start with `max_retries=0`** and a `fallback_fetch_function` if you just want a safety net without burning time on retries.
-- **Use `is_fallback=True`** on your proxy to avoid consuming proxy credits on sites that don't need them.
-- **Order fallback proxies cheapest-first** — datacenter proxies before residential, residential before premium.
+- **Order proxies cheapest-first** — datacenter proxies before residential, residential before premium.
 - **Combine with stealth mode** — `BrowserConfig(enable_stealth=True)` and `CrawlerRunConfig(magic=True)` reduce the chance of being blocked in the first place.
 - **`wait_until="load"`** is important for anti-bot sites — the default `domcontentloaded` can return before the anti-bot sensor finishes.
-- **You don't need a primary proxy to use fallback proxies.** If you skip `proxy_config` and only pass `fallback_proxy_configs`, the first attempt each round runs with no proxy. This is useful when you want to try direct access first and only escalate to proxies if blocked:
-    ```python
-    config = CrawlerRunConfig(
-        max_retries=1,
-        fallback_proxy_configs=[proxy_A, proxy_B],
-    )
-    # Round 1: no proxy → proxy_A → proxy_B
-    # Round 2: no proxy → proxy_A → proxy_B
-    ```
+- **Check `crawl_stats`** to understand what happened — how many attempts, which proxy worked, whether the fallback function was needed.
 
 ## See Also
 

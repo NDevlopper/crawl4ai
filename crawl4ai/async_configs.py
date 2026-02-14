@@ -353,7 +353,6 @@ class ProxyConfig:
         username: Optional[str] = None,
         password: Optional[str] = None,
         ip: Optional[str] = None,
-        is_fallback: bool = False,
     ):
         """Configuration class for a single proxy.
 
@@ -362,13 +361,10 @@ class ProxyConfig:
             username: Optional username for proxy authentication
             password: Optional password for proxy authentication
             ip: Optional IP address for verification purposes
-            is_fallback: If True, proxy is only used when anti-bot blocking is
-                        detected. If False (default), proxy is used on every request.
         """
         self.server = server
         self.username = username
         self.password = password
-        self.is_fallback = is_fallback
 
         # Extract IP from server if not explicitly provided
         self.ip = ip or self._extract_ip_from_server()
@@ -430,7 +426,6 @@ class ProxyConfig:
             username=proxy_dict.get("username"),
             password=proxy_dict.get("password"),
             ip=proxy_dict.get("ip"),
-            is_fallback=proxy_dict.get("is_fallback", False),
         )
     
     @staticmethod
@@ -461,7 +456,6 @@ class ProxyConfig:
             "username": self.username,
             "password": self.password,
             "ip": self.ip,
-            "is_fallback": self.is_fallback,
         }
     
     def clone(self, **kwargs) -> "ProxyConfig":
@@ -1379,7 +1373,7 @@ class CrawlerRunConfig():
         prettiify: bool = False,
         parser_type: str = "lxml",
         scraping_strategy: ContentScrapingStrategy = None,
-        proxy_config: Union[ProxyConfig, dict, None] = None,
+        proxy_config: Union["ProxyConfig", List["ProxyConfig"], dict, str, None] = None,
         proxy_rotation_strategy: Optional[ProxyRotationStrategy] = None,
         # Sticky Proxy Session Parameters
         proxy_session_id: Optional[str] = None,
@@ -1478,7 +1472,6 @@ class CrawlerRunConfig():
         experimental: Dict[str, Any] = None,
         # Anti-Bot Retry Parameters
         max_retries: int = 0,
-        fallback_proxy_configs: Optional[List["ProxyConfig"]] = None,
         fallback_fetch_function: Optional[Callable[[str], Awaitable[str]]] = None,
     ):
         # TODO: Planning to set properties dynamically based on the __init__ signature
@@ -1501,11 +1494,23 @@ class CrawlerRunConfig():
         self.prettiify = prettiify
         self.parser_type = parser_type
         self.scraping_strategy = scraping_strategy or LXMLWebScrapingStrategy()
-        self.proxy_config = proxy_config
-        if isinstance(proxy_config, dict):
+        # Normalize proxy_config: single ProxyConfig stored as-is, list stored as list
+        if isinstance(proxy_config, list):
+            normalized = []
+            for p in proxy_config:
+                if isinstance(p, dict):
+                    normalized.append(ProxyConfig.from_dict(p))
+                elif isinstance(p, str):
+                    normalized.append(ProxyConfig.from_string(p))
+                else:
+                    normalized.append(p)
+            self.proxy_config = normalized
+        elif isinstance(proxy_config, dict):
             self.proxy_config = ProxyConfig.from_dict(proxy_config)
-        if isinstance(proxy_config, str):
+        elif isinstance(proxy_config, str):
             self.proxy_config = ProxyConfig.from_string(proxy_config)
+        else:
+            self.proxy_config = proxy_config  # ProxyConfig or None
 
         self.proxy_rotation_strategy = proxy_rotation_strategy
 
@@ -1665,13 +1670,20 @@ class CrawlerRunConfig():
 
         # Anti-Bot Retry Parameters
         self.max_retries = max_retries
-        self.fallback_proxy_configs = fallback_proxy_configs or []
         self.fallback_fetch_function = fallback_fetch_function
 
         # Compile C4A scripts if provided
         if self.c4a_script and not self.js_code:
             self._compile_c4a_script()
 
+
+    def _get_proxy_list(self) -> list:
+        """Normalize proxy_config to a list for the retry loop."""
+        if self.proxy_config is None:
+            return [None]
+        if isinstance(self.proxy_config, list):
+            return self.proxy_config if self.proxy_config else [None]
+        return [self.proxy_config]
 
     def _compile_c4a_script(self):
         """Compile C4A script to JavaScript"""
@@ -1828,7 +1840,11 @@ class CrawlerRunConfig():
             "prettiify": self.prettiify,
             "parser_type": self.parser_type,
             "scraping_strategy": self.scraping_strategy,
-            "proxy_config": self.proxy_config.to_dict() if hasattr(self.proxy_config, 'to_dict') else self.proxy_config,
+            "proxy_config": (
+                [p.to_dict() if hasattr(p, 'to_dict') else p for p in self.proxy_config]
+                if isinstance(self.proxy_config, list)
+                else (self.proxy_config.to_dict() if hasattr(self.proxy_config, 'to_dict') else self.proxy_config)
+            ),
             "proxy_rotation_strategy": self.proxy_rotation_strategy,
             "proxy_session_id": self.proxy_session_id,
             "proxy_session_ttl": self.proxy_session_ttl,
@@ -1903,7 +1919,6 @@ class CrawlerRunConfig():
             "match_mode": self.match_mode,
             "experimental": self.experimental,
             "max_retries": self.max_retries,
-            "fallback_proxy_configs": [p.to_dict() for p in self.fallback_proxy_configs] if self.fallback_proxy_configs else [],
         }
 
     def clone(self, **kwargs):

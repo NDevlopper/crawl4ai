@@ -393,24 +393,26 @@ class AsyncWebCrawler:
                             )
 
                     # --- Anti-bot retry setup ---
-                    _fallback_proxy = None
-                    if (config.proxy_config
-                            and getattr(config.proxy_config, "is_fallback", False)):
-                        _fallback_proxy = config.proxy_config
-                        config.proxy_config = None
-
                     _max_attempts = 1 + getattr(config, "max_retries", 0)
-                    _fallback_proxies = getattr(config, "fallback_proxy_configs", None) or []
-                    _proxy_activated = False
+                    _proxy_list = config._get_proxy_list()
+                    _original_proxy_config = config.proxy_config
                     _block_reason = ""
                     _done = False
                     crawl_result = None
+                    _crawl_stats = {
+                        "attempts": 0,
+                        "retries": 0,
+                        "proxies_used": [],
+                        "fallback_fetch_used": False,
+                        "resolved_by": None,
+                    }
 
                     for _attempt in range(_max_attempts):
                         if _done:
                             break
 
                         if _attempt > 0:
+                            _crawl_stats["retries"] = _attempt
                             self.logger.warning(
                                 message="Anti-bot retry {attempt}/{max_retries} for {url} — {reason}",
                                 tag="ANTIBOT",
@@ -421,38 +423,22 @@ class AsyncWebCrawler:
                                     "reason": _block_reason,
                                 },
                             )
-                            # Activate is_fallback proxy on first retry
-                            if _fallback_proxy and not _proxy_activated:
-                                config.proxy_config = _fallback_proxy
-                                _proxy_activated = True
-                                self.logger.info(
-                                    message="Activating fallback proxy: {proxy}",
-                                    tag="ANTIBOT",
-                                    params={"proxy": _fallback_proxy.server},
-                                )
 
-                        # Build list of proxies to try this round:
-                        # current config.proxy_config first, then each fallback proxy
-                        _proxies_this_round = [config.proxy_config]  # main (may be None)
-                        _proxies_this_round.extend(_fallback_proxies)
-
-                        for _p_idx, _proxy in enumerate(_proxies_this_round):
-                            _is_fallback_proxy = _p_idx > 0
-                            if _is_fallback_proxy:
+                        for _p_idx, _proxy in enumerate(_proxy_list):
+                            if _p_idx > 0 or _attempt > 0:
                                 self.logger.info(
-                                    message="Trying fallback proxy {idx}/{total}: {proxy}",
+                                    message="Trying proxy {idx}/{total}: {proxy}",
                                     tag="ANTIBOT",
                                     params={
-                                        "idx": _p_idx,
-                                        "total": len(_fallback_proxies),
-                                        "proxy": _proxy.server,
+                                        "idx": _p_idx + 1,
+                                        "total": len(_proxy_list),
+                                        "proxy": _proxy.server if _proxy else "direct",
                                     },
                                 )
 
-                            # Temporarily set the proxy for this attempt
-                            _saved_proxy = config.proxy_config
-                            if _is_fallback_proxy:
-                                config.proxy_config = _proxy
+                            # Set the active proxy for this attempt
+                            config.proxy_config = _proxy
+                            _crawl_stats["attempts"] += 1
 
                             try:
                                 t1 = time.perf_counter()
@@ -507,27 +493,38 @@ class AsyncWebCrawler:
                                 # Check if blocked
                                 _blocked, _block_reason = is_blocked(
                                     async_response.status_code, html)
+
+                                _crawl_stats["proxies_used"].append({
+                                    "proxy": _proxy.server if _proxy else None,
+                                    "status_code": async_response.status_code,
+                                    "blocked": _blocked,
+                                    "reason": _block_reason if _blocked else "",
+                                })
+
                                 if not _blocked:
+                                    _crawl_stats["resolved_by"] = "proxy" if _proxy else "direct"
                                     _done = True
                                     break  # Success — exit proxy loop
 
                             except Exception as _crawl_err:
-                                if _is_fallback_proxy:
+                                _crawl_stats["proxies_used"].append({
+                                    "proxy": _proxy.server if _proxy else None,
+                                    "status_code": None,
+                                    "blocked": True,
+                                    "reason": str(_crawl_err),
+                                })
+                                if _p_idx > 0 or _attempt > 0:
                                     self.logger.error_status(
                                         url=url,
-                                        error=f"Fallback proxy {_proxy.server} failed: {_crawl_err}",
+                                        error=f"Proxy {_proxy.server if _proxy else 'direct'} failed: {_crawl_err}",
                                         tag="ANTIBOT",
                                     )
                                     _block_reason = str(_crawl_err)
                                 else:
-                                    raise  # Let main proxy errors propagate normally
-                            finally:
-                                if _is_fallback_proxy:
-                                    config.proxy_config = _saved_proxy
+                                    raise  # First attempt on first proxy propagates normally
 
-                    # --- Restore stashed is_fallback proxy for config integrity ---
-                    if _fallback_proxy and not _proxy_activated:
-                        config.proxy_config = _fallback_proxy
+                    # Restore original proxy_config
+                    config.proxy_config = _original_proxy_config
 
                     # --- Fallback fetch function (last resort after all retries+proxies exhausted) ---
                     if (crawl_result
@@ -540,6 +537,7 @@ class AsyncWebCrawler:
                                 tag="ANTIBOT",
                                 params={"url": url[:80]},
                             )
+                            _crawl_stats["fallback_fetch_used"] = True
                             try:
                                 _fallback_html = await config.fallback_fetch_function(url)
                                 if _fallback_html:
@@ -560,12 +558,22 @@ class AsyncWebCrawler:
                                     crawl_result.status_code = 200
                                     crawl_result.session_id = getattr(config, "session_id", None)
                                     crawl_result.cache_status = "miss"
+                                    _crawl_stats["resolved_by"] = "fallback_fetch"
                             except Exception as _fallback_err:
                                 self.logger.error_status(
                                     url=url,
                                     error=f"Fallback fetch failed: {_fallback_err}",
                                     tag="ANTIBOT",
                                 )
+
+                    # --- Mark blocked results as failed ---
+                    if crawl_result:
+                        _blocked, _block_reason = is_blocked(
+                            crawl_result.status_code, crawl_result.html or "")
+                        if _blocked:
+                            crawl_result.success = False
+                            crawl_result.error_message = f"Blocked by anti-bot protection: {_block_reason}"
+                        crawl_result.crawl_stats = _crawl_stats
 
                     # Compute head fingerprint for cache validation
                     if crawl_result and crawl_result.html:

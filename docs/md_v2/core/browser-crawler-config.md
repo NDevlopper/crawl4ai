@@ -276,12 +276,11 @@ class CrawlerRunConfig:
    - See [Identity Based Crawling](../advanced/identity-based-crawling.md#7-locale-timezone-and-geolocation-control)
 
 10.⠀**Proxy Configuration**:
-    - **`proxy_config`**: Proxy server configuration (ProxyConfig object or dict) e.g. {"server": "...", "username": "...", "password"}. Set `is_fallback=True` to only use the proxy when anti-bot blocking is detected.
+    - **`proxy_config`**: Single `ProxyConfig` or `list[ProxyConfig]` — proxies tried in order. Pass a list for automatic escalation.
     - **`proxy_rotation_strategy`**: Strategy for rotating proxies during crawls
 
 11.⠀**Anti-Bot Retry & Fallback** (see [Anti-Bot & Fallback](../advanced/anti-bot-and-fallback.md)):
-    - **`max_retries`**: Number of retry rounds when blocking is detected (default: 0)
-    - **`fallback_proxy_configs`**: List of fallback proxies tried in order within each retry round
+    - **`max_retries`**: Number of retry rounds when blocking is detected (default: 0). Each round tries all proxies in `proxy_config`.
     - **`fallback_fetch_function`**: Async function called as last resort — takes URL, returns raw HTML
 
 12.⠀**Page Interaction Parameters**:
