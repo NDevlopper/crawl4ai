@@ -30,7 +30,7 @@ from .cache_context import CacheMode
 from .proxy_strategy import ProxyRotationStrategy
 
 import inspect
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Awaitable, Callable, Dict, List, Optional, Union
 from enum import Enum
 
 # Type alias for URL matching
@@ -353,19 +353,23 @@ class ProxyConfig:
         username: Optional[str] = None,
         password: Optional[str] = None,
         ip: Optional[str] = None,
+        is_fallback: bool = False,
     ):
         """Configuration class for a single proxy.
-        
+
         Args:
             server: Proxy server URL (e.g., "http://127.0.0.1:8080")
             username: Optional username for proxy authentication
             password: Optional password for proxy authentication
             ip: Optional IP address for verification purposes
+            is_fallback: If True, proxy is only used when anti-bot blocking is
+                        detected. If False (default), proxy is used on every request.
         """
         self.server = server
         self.username = username
         self.password = password
-        
+        self.is_fallback = is_fallback
+
         # Extract IP from server if not explicitly provided
         self.ip = ip or self._extract_ip_from_server()
     
@@ -425,7 +429,8 @@ class ProxyConfig:
             server=proxy_dict.get("server"),
             username=proxy_dict.get("username"),
             password=proxy_dict.get("password"),
-            ip=proxy_dict.get("ip")
+            ip=proxy_dict.get("ip"),
+            is_fallback=proxy_dict.get("is_fallback", False),
         )
     
     @staticmethod
@@ -455,7 +460,8 @@ class ProxyConfig:
             "server": self.server,
             "username": self.username,
             "password": self.password,
-            "ip": self.ip
+            "ip": self.ip,
+            "is_fallback": self.is_fallback,
         }
     
     def clone(self, **kwargs) -> "ProxyConfig":
@@ -1470,6 +1476,10 @@ class CrawlerRunConfig():
         match_mode: MatchMode = MatchMode.OR,
         # Experimental Parameters
         experimental: Dict[str, Any] = None,
+        # Anti-Bot Retry Parameters
+        max_retries: int = 0,
+        fallback_proxy_configs: Optional[List["ProxyConfig"]] = None,
+        fallback_fetch_function: Optional[Callable[[str], Awaitable[str]]] = None,
     ):
         # TODO: Planning to set properties dynamically based on the __init__ signature
         self.url = url
@@ -1652,7 +1662,12 @@ class CrawlerRunConfig():
         
         # Experimental Parameters
         self.experimental = experimental or {}
-        
+
+        # Anti-Bot Retry Parameters
+        self.max_retries = max_retries
+        self.fallback_proxy_configs = fallback_proxy_configs or []
+        self.fallback_fetch_function = fallback_fetch_function
+
         # Compile C4A scripts if provided
         if self.c4a_script and not self.js_code:
             self._compile_c4a_script()
@@ -1887,6 +1902,8 @@ class CrawlerRunConfig():
             "url_matcher": self.url_matcher,
             "match_mode": self.match_mode,
             "experimental": self.experimental,
+            "max_retries": self.max_retries,
+            "fallback_proxy_configs": [p.to_dict() for p in self.fallback_proxy_configs] if self.fallback_proxy_configs else [],
         }
 
     def clone(self, **kwargs):

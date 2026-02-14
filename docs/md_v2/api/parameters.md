@@ -109,8 +109,11 @@ We group them by category.
 | **`timezone_id`**      | `str or None` (None)      | Browser's timezone (e.g., "America/New_York", "Europe/Paris").                                         |
 | **`geolocation`**      | `GeolocationConfig or None` (None) | GPS coordinates configuration. Use `GeolocationConfig(latitude=..., longitude=..., accuracy=...)`. |
 | **`fetch_ssl_certificate`** | `bool` (False)       | If `True`, fetches and includes SSL certificate information in the result.                             |
-| **`proxy_config`**           | `ProxyConfig or dict or None` (None) | Proxy configuration for this specific crawl. Can override browser-level proxy settings.          |
+| **`proxy_config`**           | `ProxyConfig or dict or None` (None) | Proxy configuration for this specific crawl. Can override browser-level proxy settings. Set `is_fallback=True` on the ProxyConfig to only use the proxy when anti-bot blocking is detected. |
 | **`proxy_rotation_strategy`** | `ProxyRotationStrategy` (None)      | Strategy for rotating proxies during crawl operations.                                           |
+| **`max_retries`**            | `int` (0)                            | Number of retry rounds when anti-bot blocking is detected. Each round tries the main proxy and all fallback proxies. |
+| **`fallback_proxy_configs`** | `list[ProxyConfig]` ([])             | List of fallback proxies tried in order within each retry round after the main proxy fails.       |
+| **`fallback_fetch_function`**| `async (str) -> str or None` (None)  | Async function called as last resort after all retries are exhausted. Takes URL, returns raw HTML. See [Anti-Bot & Fallback](../advanced/anti-bot-and-fallback.md). |
 
 ---
 

@@ -302,3 +302,7 @@ def safe_proxy_repr(proxy: ProxyConfig):
     - Ensure `ProxyConfig.from_env()` actually loaded entries (`len(proxies) > 0`).
     - Attach `proxy_rotation_strategy` to `CrawlerRunConfig`.
     - Validate the proxy definitions you pass into the strategy.
+
+## See Also
+
+- [Anti-Bot Detection & Fallback](anti-bot-and-fallback.md) — Automatic retry with proxy escalation and fallback functions when anti-bot blocking is detected

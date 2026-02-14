@@ -275,17 +275,22 @@ class CrawlerRunConfig:
    - **`geolocation`**: GPS coordinates via `GeolocationConfig(latitude=48.8566, longitude=2.3522)`
    - See [Identity Based Crawling](../advanced/identity-based-crawling.md#7-locale-timezone-and-geolocation-control)
 
-10.⠀**Proxy Configuration**:  
-    - **`proxy_config`**: Proxy server configuration (ProxyConfig object or dict) e.g. {"server": "...", "username": "...", "password"}
+10.⠀**Proxy Configuration**:
+    - **`proxy_config`**: Proxy server configuration (ProxyConfig object or dict) e.g. {"server": "...", "username": "...", "password"}. Set `is_fallback=True` to only use the proxy when anti-bot blocking is detected.
     - **`proxy_rotation_strategy`**: Strategy for rotating proxies during crawls
 
-11.⠀**Page Interaction Parameters**:  
+11.⠀**Anti-Bot Retry & Fallback** (see [Anti-Bot & Fallback](../advanced/anti-bot-and-fallback.md)):
+    - **`max_retries`**: Number of retry rounds when blocking is detected (default: 0)
+    - **`fallback_proxy_configs`**: List of fallback proxies tried in order within each retry round
+    - **`fallback_fetch_function`**: Async function called as last resort — takes URL, returns raw HTML
+
+12.⠀**Page Interaction Parameters**:
     - **`scan_full_page`**: If `True`, scroll through the entire page to load all content
     - **`wait_until`**: Condition to wait for when navigating (e.g., "domcontentloaded", "networkidle")
     - **`page_timeout`**: Timeout in milliseconds for page operations (default: 60000)
     - **`delay_before_return_html`**: Delay in seconds before retrieving final HTML.
 
-12.⠀**`url_matcher`** & **`match_mode`**:  
+13.⠀**`url_matcher`** & **`match_mode`**:  
     - Enable URL-specific configurations when used with `arun_many()`.
     - Set `url_matcher` to patterns (glob, function, or list) to match specific URLs.
     - Use `match_mode` (OR/AND) to control how multiple patterns combine.
