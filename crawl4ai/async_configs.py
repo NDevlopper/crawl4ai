@@ -1496,25 +1496,7 @@ class CrawlerRunConfig():
         self.prettiify = prettiify
         self.parser_type = parser_type
         self.scraping_strategy = scraping_strategy or LXMLWebScrapingStrategy()
-        # Normalize proxy_config: single ProxyConfig stored as-is, list stored as list
-        if isinstance(proxy_config, list):
-            normalized = []
-            for p in proxy_config:
-                if p is None or p == "direct":
-                    normalized.append(None)
-                elif isinstance(p, dict):
-                    normalized.append(ProxyConfig.from_dict(p))
-                elif isinstance(p, str):
-                    normalized.append(ProxyConfig.from_string(p))
-                else:
-                    normalized.append(p)
-            self.proxy_config = normalized
-        elif isinstance(proxy_config, dict):
-            self.proxy_config = ProxyConfig.from_dict(proxy_config)
-        elif isinstance(proxy_config, str):
-            self.proxy_config = ProxyConfig.from_string(proxy_config)
-        else:
-            self.proxy_config = proxy_config  # ProxyConfig or None
+        self.proxy_config = proxy_config  # runs through property setter
 
         self.proxy_rotation_strategy = proxy_rotation_strategy
 
@@ -1680,6 +1662,37 @@ class CrawlerRunConfig():
         if self.c4a_script and not self.js_code:
             self._compile_c4a_script()
 
+
+    @staticmethod
+    def _normalize_proxy_config(value):
+        """Normalize proxy_config to ProxyConfig, list of ProxyConfig/None, or None."""
+        if isinstance(value, list):
+            normalized = []
+            for p in value:
+                if p is None or p == "direct":
+                    normalized.append(None)
+                elif isinstance(p, dict):
+                    normalized.append(ProxyConfig.from_dict(p))
+                elif isinstance(p, str):
+                    normalized.append(ProxyConfig.from_string(p))
+                else:
+                    normalized.append(p)
+            return normalized
+        elif isinstance(value, dict):
+            return ProxyConfig.from_dict(value)
+        elif isinstance(value, str):
+            if value == "direct":
+                return None
+            return ProxyConfig.from_string(value)
+        return value  # ProxyConfig or None
+
+    @property
+    def proxy_config(self):
+        return self._proxy_config
+
+    @proxy_config.setter
+    def proxy_config(self, value):
+        self._proxy_config = CrawlerRunConfig._normalize_proxy_config(value)
 
     def _get_proxy_list(self) -> list:
         """Normalize proxy_config to a list for the retry loop."""
