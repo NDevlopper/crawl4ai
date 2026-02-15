@@ -513,15 +513,17 @@ class AsyncWebCrawler:
                                     "blocked": True,
                                     "reason": str(_crawl_err),
                                 })
-                                if _p_idx > 0 or _attempt > 0:
-                                    self.logger.error_status(
-                                        url=url,
-                                        error=f"Proxy {_proxy.server if _proxy else 'direct'} failed: {_crawl_err}",
-                                        tag="ANTIBOT",
-                                    )
-                                    _block_reason = str(_crawl_err)
-                                else:
-                                    raise  # First attempt on first proxy propagates normally
+                                self.logger.error_status(
+                                    url=url,
+                                    error=f"Proxy {_proxy.server if _proxy else 'direct'} failed: {_crawl_err}",
+                                    tag="ANTIBOT",
+                                )
+                                _block_reason = str(_crawl_err)
+                                # If this is the only proxy and only attempt, re-raise
+                                # so the caller gets the real error (not a silent swallow).
+                                # But if there are more proxies or retries to try, continue.
+                                if len(_proxy_list) <= 1 and _max_attempts <= 1:
+                                    raise
 
                     # Restore original proxy_config
                     config.proxy_config = _original_proxy_config
