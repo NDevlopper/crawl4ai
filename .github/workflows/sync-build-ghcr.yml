@@ -1,0 +1,87 @@
+name: Sync upstream + build & push crawl4ai image
+
+on:
+  schedule:
+    - cron: "15 2 * * *" # tous les jours 02:15 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork (current repo)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sync upstream but keep workflow files
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Sauvegarder les workflows pour éviter qu'ils disparaissent après le reset
+          mkdir -p /tmp/keep_workflows
+          if [ -d ".github/workflows" ]; then
+            cp -r .github/workflows /tmp/keep_workflows/
+          fi
+
+          # Sync upstream (miroir)
+          git remote add upstream https://github.com/unclecode/crawl4ai.git || true
+          git fetch --prune upstream
+          git checkout main
+          git reset --hard upstream/main
+
+          # Restaurer les workflows
+          if [ -d "/tmp/keep_workflows/workflows" ]; then
+            mkdir -p .github
+            cp -r /tmp/keep_workflows/workflows .github/
+            git add .github/workflows
+            git commit -m "Restore workflows after upstream sync" || true
+          fi
+
+          git push origin main --force
+
+  build:
+    needs: sync
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout updated main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Debug Dockerfile
+        run: |
+          echo "=== ROOT LS ==="
+          ls -la
+          echo "=== DOCKERFILES ==="
+          find . -maxdepth 6 -name Dockerfile -print
+
+      - name: Ensure root Dockerfile exists
+        run: |
+          if [ ! -f "./Dockerfile" ]; then
+            echo "ERROR: Root Dockerfile not found (./Dockerfile)"
+            find . -maxdepth 6 -name Dockerfile -print
+            exit 1
+          fi
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push crawl4ai image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ghcr.io/ndevlopper/crawl4ai:latest
